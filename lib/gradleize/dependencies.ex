@@ -26,14 +26,16 @@ defmodule Gradleize.Dependencies do
 
   Params
   - `pom` - pom file path
+
+  Return an IO list.
   """
+  @spec create_module_dependencies(binary) :: iolist
   def create_module_dependencies(pom) do
     pom
     |> Maven.parse_dependencies(section: :dependencies)
     |> Stream.flat_map(&create_dependency_declaration/1)
     |> Enum.sort
     |> Enum.intersperse("\n")
-    |> IO.puts
   end
 
   # Create a Gradle dependency declaration.

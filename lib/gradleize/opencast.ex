@@ -1,12 +1,14 @@
 defmodule Gradleize.Opencast do
   @moduledoc """
   Opencast specifics like paths to modules etc.
+
+  Set path the Opencast home directory in `config.exs`.
   """
 
   @project_home Application.get_env(:gradleize, :project_home)
 
   @doc """
-  Get the main `pom.xml` of the configured project.
+  Get path of the main `pom.xml` of the configured Opencast project.
   """
   def main_pom do
     @project_home
@@ -14,7 +16,7 @@ defmodule Gradleize.Opencast do
   end
 
   @doc """
-  Get a module `pom.xml` of the configured project.
+  Get path to a module's `pom.xml` of the configured Opencast project.
   """
   def module_pom(module) do
     modules_home()
@@ -30,7 +32,7 @@ defmodule Gradleize.Opencast do
   end
 
   @doc """
-  Home of all module directories.
+  Home of all module directories of the configured Opencast project.
   """
   def modules_home do
     @project_home
