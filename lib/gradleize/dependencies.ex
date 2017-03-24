@@ -5,6 +5,7 @@ defmodule Gradleize.Dependencies do
 
   alias Gradleize.Dependency.Maven
   alias Gradleize.Dependency.Gradle
+  alias Gradleize.Dependency
 
   @doc """
   Create a list of library definitions from the `<dependencyManagement>` section of a Maven pom.
@@ -45,18 +46,23 @@ defmodule Gradleize.Dependencies do
       nil ->
         []
       configurationName ->
-        dependency =
-          case dep.version do
-            nil -> create_lib_name(dep.artifact_id)
-            _ -> Gradle.create_dependency_string(dep)
-          end
+        dependency = create_dependency_string_for_declaration(dep)
         [[configurationName, " ", dependency]]
     end
   end
 
+  # Helper function for `create_dependency_declaration/1`
+  defp create_dependency_string_for_declaration(%Dependency{version: nil, artifact_id: artifact_id}) do
+    create_lib_ref(artifact: artifact_id)
+  end
+  defp create_dependency_string_for_declaration(dep) do
+    [?', Gradle.create_dependency_string(dep), ?']
+  end
+
+
   # Create a Gradle library definition from a parsed Maven dependency.
   defp create_library_definition(dep) do
-    lib_ref = create_lib_ref_from_artifact_id(dep.artifact_id)
+    lib_ref = create_lib_ref(artifact: dep.artifact_id)
     dependency =
       dep
       |> rewrite_version
@@ -83,12 +89,10 @@ defmodule Gradleize.Dependencies do
   end
 
   # Create a Gradle library reference for a lib.
-  defp create_lib_ref(lib_name), do: ["libraries.", lib_name]
-
-  defp create_lib_ref_from_artifact_id(artifact_id) do
-    artifact_id
-    |> create_lib_name
-    |> create_lib_ref
+  defp create_lib_ref(lib: lib_name), do: ["libraries.", lib_name]
+  defp create_lib_ref(artifact: artifact_id) do
+    lib_name = create_lib_name(artifact_id)
+    create_lib_ref(lib: lib_name)
   end
 
   # Create a Gradle lib name from an artifact id.
