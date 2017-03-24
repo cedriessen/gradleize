@@ -1,0 +1,74 @@
+defmodule Gradleize do
+  @moduledoc """
+  TODO
+  """
+
+  @doc """
+  Create module include statements for `settings.gradle`.
+  """
+  def create_module_includes(module_base_dir) do
+    module_base_dir
+    |> Gradleize.Util.list_module_directories
+    |> Enum.map(fn module_dir ->
+         module_name = Path.basename(module_dir)
+         "include ':#{module_name}'"
+       end)
+    |> Enum.each(&IO.puts/1)
+  end
+
+  @doc """
+  Create a `.gradle` build file in each module directory.
+  Name the file after the module, e.g. `matterhorn-common.gradle`.
+  """
+  def create_module_build_files(module_base_dir) do
+    module_base_dir
+    |> Gradleize.Util.list_module_directories
+    |> Enum.each(fn module_dir ->
+         module_name = Path.basename(module_dir)
+         build_file = "#{module_name}.gradle"
+         module_dir
+         |> Path.join(build_file)
+         |> File.write!(build_file_template(module_name))
+       end)
+  end
+
+  defp build_file_template(module_name) do
+    description =
+      module_name
+      |> String.split("-")
+      |> Enum.map(&make_word/1)
+      |> Enum.join(" ")
+    """
+    project.description = '#{description}'
+
+    dependencies {
+    }
+    """
+  end
+
+  defp make_word("api"), do: "API"
+  defp make_word("aws"), do: "AWS"
+  defp make_word("lti"), do: "LTI"
+  defp make_word("ui"), do: "UI"
+  defp make_word("ng"), do: "NG"
+  defp make_word("ffmpeg"), do: "FFmpeg"
+  defp make_word("aai"), do: "AAI"
+  defp make_word("db"), do: "DB"
+  defp make_word("cas"), do: "CAS"
+  defp make_word("ldap"), do: "LDAP"
+  defp make_word("openid"), do: "OpenID"
+  defp make_word("oaipmh"), do: "OAI-PMH"
+  defp make_word("sox"), do: "SOX"
+  defp make_word("smil"), do: "SMIL"
+  defp make_word("video" <> word), do: make_word("Video", word)
+  defp make_word("user" <> word), do: make_word("User", word)
+  defp make_word("url" <> word), do: make_word("URL", word)
+  defp make_word("text" <> word), do: make_word("Text", word)
+  defp make_word("silence" <> word), do: make_word("Silence", word)
+  defp make_word("service" <> word), do: make_word("Service", word)
+  defp make_word("workflow" <> word), do: make_word("Workflow", word)
+  defp make_word(word), do: String.capitalize(word)
+
+  defp make_word(prefix, ""), do: prefix
+  defp make_word(prefix, suffix), do: prefix <> " " <> String.capitalize(suffix)
+end
