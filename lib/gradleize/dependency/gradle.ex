@@ -6,8 +6,7 @@ defmodule Gradleize.Dependency.Gradle do
   alias Gradleize.Dependency
 
   @doc """
-  Create a Gradle string dependency notation "group:artifact:version" from a
-  `$Gradleize.Dependency{}` struct.
+  Create a Gradle dependency in string notation "group:artifact:version".
 
   Return an IO list.
   """
@@ -16,6 +15,20 @@ defmodule Gradleize.Dependency.Gradle do
     [dep.group_id, dep.artifact_id, dep.version]
     |> Enum.filter(& &1 != nil)
     |> Enum.intersperse(":")
+  end
+
+  @doc """
+  Much like `create_dependency_string/1` but quoted.
+
+  Use different quotes depending on the value of the version field.
+  If its a variable `${var}` use double quotes, single quotes otherwise.
+
+   Return an IO list.
+  """
+  @spec create_quoted_dependency_string(Dependency.t) :: iolist
+  def create_quoted_dependency_string(dep) do
+    quotes = if dep.version |> String.starts_with?("${"), do: ?", else: ?'
+    [quotes, create_dependency_string(dep), quotes]
   end
 
   @doc """

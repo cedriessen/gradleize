@@ -46,20 +46,25 @@ defmodule Gradleize.Dependencies do
       nil ->
         []
       configurationName ->
-        dependency = create_dependency_string_for_declaration(dep)
+        dependency =
+          dep
+          |> rewrite_version
+          |> create_dependency_string_for_declaration
         [[configurationName, " ", dependency]]
     end
   end
 
   # Helper function for `create_dependency_declaration/1`
+  #
   defp create_dependency_string_for_declaration(%Dependency{version: nil, artifact_id: artifact_id}) do
     create_lib_ref(artifact: artifact_id)
   end
-  defp create_dependency_string_for_declaration(%Dependency{version: "${project.version}", artifact_id: artifact_id}) do
+  # match on the rewritten dependency version
+  defp create_dependency_string_for_declaration(%Dependency{version: "${versions.project}", artifact_id: artifact_id}) do
     ["project(':", artifact_id, "')"]
   end
   defp create_dependency_string_for_declaration(dep) do
-    [?', Gradle.create_dependency_string(dep), ?']
+    Gradle.create_quoted_dependency_string(dep)
   end
 
 
@@ -69,10 +74,11 @@ defmodule Gradleize.Dependencies do
     dependency =
       dep
       |> rewrite_version
-      |> Gradle.create_dependency_string
-    quotes = if dep.version |> String.starts_with?("${"), do: '"', else: "'"
-    [lib_ref, " = ", quotes, dependency, quotes]
+      |> Gradle.create_quoted_dependency_string
+    [lib_ref, " = ", dependency]
   end
+
+  defp create_quoted_dependency_string
 
   # Rewrite the version field of a dependency struct.
   defp rewrite_version(dep) do
