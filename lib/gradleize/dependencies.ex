@@ -38,10 +38,10 @@ defmodule Gradleize.Dependencies do
     dependency_command = Gradle.create_dependency_command(dep)
     dependency =
       case dep.version do
-        "" -> create_lib_name(dep.artifact_id)
-        version -> Gradle.create_dependency(dep)
+        nil -> create_lib_name(dep.artifact_id)
+        _ -> Gradle.create_dependency(dep)
       end
-    [dependency, " ", dependency]
+    [dependency_command, " ", dependency]
   end
 
   # Create a Gradle library definition from a parsed Maven dependency.
