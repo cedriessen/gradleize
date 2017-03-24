@@ -35,25 +35,4 @@ defmodule Gradleize.Util do
   def empty_to_nil(string)
   def empty_to_nil(""), do: nil
   def empty_to_nil(not_empty), do: not_empty
-
-
-  @project_home Application.get_env(:gradleize, :project_home)
-
-  @doc """
-  Get the main `pom.xml` of the configured project.
-  """
-  def main_pom do
-    @project_home
-    |> Path.join("pom.xml")
-  end
-
-  @doc """
-  Get a module `pom.xml` of the configured project.
-  """
-  def module_pom(module) do
-    @project_home
-    |> Path.join("modules")
-    |> Path.join(module)
-    |> Path.join("pom.xml")
-  end
 end

@@ -6,7 +6,7 @@ defmodule GradleizeTest do
 
   test "create library definitions from main pom" do
     test = fn ->
-      Gradleize.Util.main_pom()
+      Gradleize.Opencast.main_pom()
       |> Gradleize.Dependencies.create_library_definitions
     end
 
@@ -19,7 +19,7 @@ defmodule GradleizeTest do
   test "create dependency definitions for matterhorn-common" do
     test = fn ->
       "matterhorn-common"
-      |> Gradleize.Util.module_pom
+      |> Gradleize.Opencast.module_pom
       |> Gradleize.Dependencies.create_module_dependencies
     end
     test.()
