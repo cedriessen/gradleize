@@ -40,7 +40,7 @@ defmodule Gradleize.Dependencies do
   end
 
   # Create a Gradle dependency declaration.
-  # Return a single elemented list in case the given dependency can be transformed, or [] if not
+  # Return a single elemented list in case the given dependency can be transformed, or [] if not.
   defp create_dependency_declaration(dep) do
     case Gradle.create_configuration_name(dep) do
       nil ->
@@ -50,7 +50,12 @@ defmodule Gradleize.Dependencies do
           dep
           |> rewrite_version
           |> create_dependency_string_for_declaration
-        [[configurationName, " ", dependency]]
+        case create_exclusions(dep) do
+          [] ->
+            [[configurationName, " ", dependency]]
+          exclusions ->
+            [[configurationName, ?(, dependency, ") {\n", exclusions, "\n}"]]
+        end
     end
   end
 
@@ -65,6 +70,13 @@ defmodule Gradleize.Dependencies do
   end
   defp create_dependency_string_for_declaration(dep) do
     Gradle.create_quoted_dependency_string(dep)
+  end
+
+  defp create_exclusions(%Dependency{exclusions: []}), do: []
+  defp create_exclusions(%Dependency{exclusions: exclusions}) do
+    exclusions
+    |> Stream.map(&Gradle.create_exclusion/1)
+    |> Enum.intersperse("\n")
   end
 
 

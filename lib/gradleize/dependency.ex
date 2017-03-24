@@ -6,22 +6,21 @@ defmodule Gradleize.Dependency do
   import Gradleize.Util
 
   @enforce_keys [:group_id, :artifact_id]
-  defstruct [:group_id, :artifact_id, :version, :scope]
+  defstruct group_id: nil, artifact_id: nil, version: nil, scope: nil, exclusions: []
 
   @type t :: %__MODULE__{
     group_id: binary,
     artifact_id: binary,
     version: nil | binary,
-    scope: nil | binary
+    scope: nil | binary,
+    exclusions: list
   }
 
   @doc """
   Take a dependency struct and set all of its fields that have an empty string value to `nil`.
   """
   def fix_empty(dependency) do
-    %Gradleize.Dependency{
-      group_id: dependency.group_id,
-      artifact_id: dependency.artifact_id,
+    %{dependency |
       version: empty_to_nil(dependency.version),
       scope: empty_to_nil(dependency.scope)
     }

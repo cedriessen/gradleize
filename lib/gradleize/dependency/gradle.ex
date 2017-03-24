@@ -32,6 +32,16 @@ defmodule Gradleize.Dependency.Gradle do
   end
 
   @doc """
+  Create an exclude config statement used in a configuration closure.
+
+  See [Gradle DependencyHandler](https://docs.gradle.org/current/dsl/org.gradle.api.artifacts.dsl.DependencyHandler.html)
+  for definition of an _exclude config statement_.
+  """
+  def create_exclusion({group_id, artifact_id}) do
+    ["exclude group: '", group_id, "', module: '", artifact_id, ?']
+  end
+
+  @doc """
   Create a Gradle configuration name like `compile` or `testCompile` for a dependency.
 
   Return either a configuration name or nil if the dependency cannot be transformed.
@@ -43,6 +53,6 @@ defmodule Gradleize.Dependency.Gradle do
   def create_configuration_name(dep)
   def create_configuration_name(%Dependency{scope: nil}), do: "compile"
   def create_configuration_name(%Dependency{scope: "test"}), do: "testCompile"
-  def create_configuration_name(%Dependency{scope: "provided"}), do: nil
+  def create_configuration_name(%Dependency{scope: "provided"}), do: "compileOnly"
   def create_configuration_name(%Dependency{scope: scope}), do: scope
 end

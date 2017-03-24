@@ -10,11 +10,21 @@ defmodule Gradleize.Dependency.Maven do
   Parse a single `<dependency>` element into a `%Gradleize.Dependency{}` struct.
   """
   def parse_dependency(xml) do
+    exclusions =
+      xml
+      |> xpath(~x"./exclusions/exclusion"l)
+      |> Enum.map(fn exclusion ->
+           {
+             exclusion |> xpath(~x"./groupId/text()"s),
+             exclusion |> xpath(~x"./artifactId/text()"s)
+           }
+         end)
     %Dependency{
       group_id: xml |> xpath(~x"./groupId/text()"s),
       artifact_id: xml |> xpath(~x"./artifactId/text()"s),
       version: xml |> xpath(~x"./version/text()"s),
-      scope: xml |> xpath(~x"./scope/text()"s)
+      scope: xml |> xpath(~x"./scope/text()"s),
+      exclusions: exclusions
     }
     |> Dependency.fix_empty
   end
