@@ -4,18 +4,19 @@ defmodule GradleizeTest do
 
   doctest Gradleize
 
-  test "create library definitions" do
+  test "create library definitions from main pom" do
     test = fn ->
       Gradleize.Util.main_pom()
       |> Gradleize.Dependencies.create_library_definitions
     end
 
     output = capture_io(test)
-    assert output =~ "libraries.commons_io"
+    assert output =~ "libraries.commons_lang3 = 'org.apache.commons:commons-lang3:3.4'"
+    assert output =~ "libraries.cxf_rt_frontend_jaxrs = \"org.apache.cxf:cxf-rt-frontend-jaxrs:${versions.cxf}\""
     assert output =~ "${versions.osgi_core}"
   end
 
-  test "create dependency definitions" do
+  test "create dependency definitions for matterhorn-common" do
     test = fn ->
       "matterhorn-common"
       |> Gradleize.Util.module_pom

@@ -6,19 +6,30 @@ defmodule Gradleize.Dependency.Gradle do
   alias Gradleize.Dependency
 
   @doc """
-  Create a Gradle dependency "group:artifact:version" from a `$Gradleize.Dependency{}` struct.
-  Return an io list.
+  Create a Gradle string dependency notation "group:artifact:version" from a
+  `$Gradleize.Dependency{}` struct.
+
+  Return an IO list.
   """
-  def create_dependency(dep) do
+  @spec create_dependency_string(Dependency.t) :: iolist
+  def create_dependency_string(dep) do
     [dep.group_id, dep.artifact_id, dep.version]
     |> Enum.filter(& &1 != nil)
     |> Enum.intersperse(":")
   end
 
   @doc """
-  Create the Gradle dependency command like `compile` or `test`.
+  Create a Gradle configuration name like `compile` or `testCompile` for a dependency.
+
+  Return either a configuration name or nil if the dependency cannot be transformed.
+
+  See [Gradle DependencyHandler](https://docs.gradle.org/3.4.1/dsl/org.gradle.api.artifacts.dsl.DependencyHandler.html)
+  for a definition of _configuration name_.
   """
-  def create_dependency_command(dep)
-  def create_dependency_command(%Dependency{scope: nil}), do: "compile"
-  def create_dependency_command(%Dependency{scope: scope}), do: scope
+  @spec create_configuration_name(Dependency.t) :: binary | nil
+  def create_configuration_name(dep)
+  def create_configuration_name(%Dependency{scope: nil}), do: "compile"
+  def create_configuration_name(%Dependency{scope: "test"}), do: "testCompile"
+  def create_configuration_name(%Dependency{scope: "provided"}), do: nil
+  def create_configuration_name(%Dependency{scope: scope}), do: scope
 end

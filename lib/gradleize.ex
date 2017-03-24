@@ -67,15 +67,15 @@ defmodule Gradleize do
   defp make_word("oaipmh"), do: "OAI-PMH"
   defp make_word("sox"), do: "SOX"
   defp make_word("smil"), do: "SMIL"
-  defp make_word("video" <> word), do: make_word("Video", word)
-  defp make_word("user" <> word), do: make_word("User", word)
-  defp make_word("url" <> word), do: make_word("URL", word)
-  defp make_word("text" <> word), do: make_word("Text", word)
-  defp make_word("silence" <> word), do: make_word("Silence", word)
-  defp make_word("service" <> word), do: make_word("Service", word)
-  defp make_word("workflow" <> word), do: make_word("Workflow", word)
+  defp make_word("video" <> word), do: concat_words("Video", word)
+  defp make_word("user" <> word), do: concat_words("User", word)
+  defp make_word("url" <> word), do: concat_words("URL", word)
+  defp make_word("text" <> word), do: concat_words("Text", word)
+  defp make_word("silence" <> word), do: concat_words("Silence", word)
+  defp make_word("service" <> word), do: concat_words("Service", word)
+  defp make_word("workflow" <> word), do: concat_words("Workflow", word)
   defp make_word(word), do: String.capitalize(word)
 
-  defp make_word(prefix, ""), do: prefix
-  defp make_word(prefix, suffix), do: prefix <> " " <> String.capitalize(suffix)
+  defp concat_words(prefix, ""), do: prefix
+  defp concat_words(prefix, suffix), do: prefix <> " " <> String.capitalize(suffix)
 end
