@@ -55,6 +55,9 @@ defmodule Gradleize.Dependencies do
   defp create_dependency_string_for_declaration(%Dependency{version: nil, artifact_id: artifact_id}) do
     create_lib_ref(artifact: artifact_id)
   end
+  defp create_dependency_string_for_declaration(%Dependency{version: "${project.version}", artifact_id: artifact_id}) do
+    ["project(':", artifact_id, "')"]
+  end
   defp create_dependency_string_for_declaration(dep) do
     [?', Gradle.create_dependency_string(dep), ?']
   end
