@@ -1,5 +1,7 @@
 defmodule Gradleize.Util do
-  @moduledoc false
+  @moduledoc """
+  General purpose utilities.
+  """
 
   @doc """
   Return a list of all subdirectories of `dir`.
