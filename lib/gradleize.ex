@@ -5,9 +5,12 @@ defmodule Gradleize do
 
   @doc """
   Create module include statements for `settings.gradle`.
+
+  ## Param
+  - `module_home` - home directory of all project module directories
   """
-  def create_module_includes(module_base_dir) do
-    module_base_dir
+  def create_module_includes(module_home) do
+    module_home
     |> Gradleize.Util.list_module_directories
     |> Enum.map(fn module_dir ->
          module_name = Path.basename(module_dir)
@@ -19,9 +22,12 @@ defmodule Gradleize do
   @doc """
   Create a `.gradle` build file in each module directory.
   Name the file after the module, e.g. `matterhorn-common.gradle`.
+
+  ## Param
+  - `module_home` - home directory of all project module directories
   """
-  def create_module_build_files(module_base_dir) do
-    module_base_dir
+  def create_module_build_files(module_home) do
+    module_home
     |> Gradleize.Util.list_module_directories
     |> Enum.each(fn module_dir ->
          module_name = Path.basename(module_dir)
@@ -46,6 +52,7 @@ defmodule Gradleize do
     """
   end
 
+  # turn a module name fragment into a word suitable as description
   defp make_word("api"), do: "API"
   defp make_word("aws"), do: "AWS"
   defp make_word("lti"), do: "LTI"

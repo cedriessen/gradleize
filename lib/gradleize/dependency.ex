@@ -3,22 +3,20 @@ defmodule Gradleize.Dependency do
   Generic Java library dependency as defined by Maven and adopted by other build systems like Gradle.
   """
 
+  import Gradleize.Util
+
   @enforce_keys [:group_id, :artifact_id]
   defstruct [:group_id, :artifact_id, :version, :scope]
 
   @doc """
-  Check if `field` is defined.
-  A field is considered to be defined if it is neither `nil` nor an empty string.
+  Take a dependency struct and set all of its fields that have an empty string value to `nil`.
   """
-  def defined?(dependency, field) do
-    not(defined?(dependency, field))
-  end
-
-  @doc """
-  Check if `field` is undefined.
-  A field is considered to be defined if it is neither `nil` nor an empty string.
-  """
-  def undefined?(dependency, field) do
-    Map.get(dependency, field) in ["", nil]
+  def fix_empty(dependency) do
+    %Gradleize.Dependency{
+      group_id: empty_to_nil(dependency.group_id),
+      artifact_id: empty_to_nil(dependency.artifact_id),
+      version: empty_to_nil(dependency.version),
+      scope: empty_to_nil(dependency.scope)
+    }
   end
 end

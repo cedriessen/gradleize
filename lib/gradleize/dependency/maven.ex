@@ -4,17 +4,19 @@ defmodule Gradleize.Dependency.Maven do
   """
 
   import SweetXml
+  alias Gradleize.Dependency
 
   @doc """
   Parse a single `<dependency>` element into a `%Gradleize.Dependency{}` struct.
   """
   def parse_dependency(xml) do
-    %Gradleize.Dependency{
+    %Dependency{
       group_id: xml |> xpath(~x"./groupId/text()"s),
       artifact_id: xml |> xpath(~x"./artifactId/text()"s),
       version: xml |> xpath(~x"./version/text()"s),
       scope: xml |> xpath(~x"./scope/text()"s)
     }
+    |> Dependency.fix_empty
   end
 
   @doc """

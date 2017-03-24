@@ -26,6 +26,15 @@ defmodule Gradleize.Util do
        end)
   end
 
+  @doc """
+  Return `nil` if the string parameter is empty, i.e. equal to "".
+  """
+  @spec empty_to_nil(binary) :: binary | nil
+  def empty_to_nil(string)
+  def empty_to_nil(""), do: nil
+  def empty_to_nil(not_empty), do: not_empty
+
+
   @project_home Application.get_env(:gradleize, :project_home)
 
   @doc """

@@ -4,7 +4,8 @@ defmodule Gradleize.Dependencies do
   """
 
   import SweetXml
-  import Gradleize.Dependency.Maven
+  alias Gradleize.Dependency.Maven
+  alias Gradleize.Dependency.Gradle
 
   @doc """
   Create a list of library definitions from the dependencyManagement section of a Maven pom.
@@ -14,8 +15,7 @@ defmodule Gradleize.Dependencies do
   """
   def create_library_definitions(pom) do
     pom
-    |> parse_dependencies(section: :management)
-    |> Stream.map(&rewrite_version/1)
+    |> Maven.parse_dependencies(section: :management)
     |> Stream.map(&create_library_definition/1)
     |> Enum.sort
     |> Enum.intersperse("\n")
@@ -27,7 +27,7 @@ defmodule Gradleize.Dependencies do
   """
   def create_module_dependencies(pom) do
     pom
-    |> parse_dependencies
+    |> Maven.parse_dependencies(section: :dependencies)
     |> Stream.map(&create_dependency_definition/1)
     |> Enum.sort
     |> Enum.intersperse("\n")
@@ -35,24 +35,22 @@ defmodule Gradleize.Dependencies do
   end
 
   defp create_dependency_definition(dep) do
-    IO.inspect(dep)
-    scope =
-      case dep.scope do
-        "" -> "compile"
-        scope -> scope
-      end
+    dependency_command = Gradle.create_dependency_command(dep)
     dependency =
       case dep.version do
         "" -> create_lib_name(dep.artifact_id)
-        version -> create_gradle_dependency(dep)
+        version -> Gradle.create_dependency(dep)
       end
-    [scope, " ", dependency]
+    [dependency, " ", dependency]
   end
 
   # Create a Gradle library definition from a parsed Maven dependency.
   defp create_library_definition(dep) do
     lib_name = create_lib_name(dep.artifact_id)
-    dependency = create_gradle_dependency(dep)
+    dependency =
+      dep
+      |> rewrite_version
+      |> Gradle.create_dependency
     quotes = if dep.version |> String.starts_with?("${"), do: '"', else: "'"
     ["libraries.", lib_name, " = ", quotes, dependency, quotes]
   end
@@ -71,13 +69,6 @@ defmodule Gradleize.Dependencies do
       nil ->
         version
     end
-  end
-
-  # Create a Gradle dependency "group:artifact:version" from a dependency map.
-  # Return an io list.
-  defp create_gradle_dependency(dep) do
-    [dep.group_id, dep.artifact_id, dep.version]
-    |> Enum.intersperse(":")
   end
 
   # Create a Gradle library reference for a lib.
