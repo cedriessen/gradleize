@@ -3,6 +3,10 @@ defmodule Gradleize do
   Main entry point.
   """
 
+  alias Gradleize.Dependencies
+  alias Gradleize.Opencast
+  alias Gradleize.Util
+
   @doc """
   Create a `.gradle` build file in each module directory.
   Name the file after the module, e.g. `matterhorn-common.gradle`.
@@ -10,24 +14,31 @@ defmodule Gradleize do
   ## Param
   - `module_home` - home directory of all project module directories
   """
-  def create_module_build_files(modules_home \\ Gradleize.Opencast.modules_home()) do
+  def create_module_build_files(modules_home \\ Opencast.modules_home()) do
     modules_home
-    |> Gradleize.Util.list_module_directories
+    |> Util.list_module_directories
     |> Enum.each(fn module_dir ->
          module_name = Path.basename(module_dir)
          build_file = "#{module_name}.gradle"
          module_dir
          |> Path.join(build_file)
          |> File.write!(build_file_template(module_name))
+         IO.puts "Created #{build_file}"
        end)
   end
 
   defp build_file_template(module_name) do
     description = create_description_for(module_name)
+    dependencies =
+      module_name
+      |> Opencast.module_pom
+      |> Dependencies.create_module_dependencies
+      |> Util.indent_iolist
     """
     project.description = '#{description}'
 
     dependencies {
+    #{dependencies}
     }
     """
   end

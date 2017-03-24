@@ -35,4 +35,17 @@ defmodule Gradleize.Util do
   def empty_to_nil(string)
   def empty_to_nil(""), do: nil
   def empty_to_nil(not_empty), do: not_empty
+
+  @doc """
+  Indent all lines of an IO list by 2 spaces.
+  Each element of the given list is considered a line except for those that are just a newline.
+  """
+  def indent_iolist(iolist) do
+    iolist
+    |> Enum.map(&indent/1)
+  end
+
+  defp indent("\n"), do: "\n"
+  defp indent(["\n"]), do: "\n"
+  defp indent(line), do: ["  ", line]
 end
