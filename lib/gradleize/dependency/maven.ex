@@ -1,6 +1,6 @@
 defmodule Gradleize.Dependency.Maven do
   @moduledoc """
-  Handling Maven dependencies.
+  Maven dependency handling.
   """
 
   import SweetXml
