@@ -17,14 +17,23 @@ defmodule Gradleize do
   def create_module_build_files(modules_home \\ Opencast.modules_home()) do
     modules_home
     |> Util.list_module_directories
-    |> Enum.each(fn module_dir ->
-         module_name = Path.basename(module_dir)
-         build_file = "#{module_name}.gradle"
-         module_dir
-         |> Path.join(build_file)
-         |> File.write!(build_file_template(module_name))
-         IO.puts "Created #{build_file}"
-       end)
+    |> Enum.each(&create_module_build_file/1)
+  end
+
+  @doc """
+  Create a `.gradle` build file in the given module directory.
+  Name the file after the module, e.g. `matterhorn-common.gradle`.
+
+  ## Param
+  - `module_dir` - path to the module directory
+  """
+  def create_module_build_file(module_dir) do
+    module_name = Path.basename(module_dir)
+    build_file = "#{module_name}.gradle"
+    module_dir
+    |> Path.join(build_file)
+    |> File.write!(build_file_template(module_name))
+    IO.puts "Created #{build_file}"
   end
 
   defp build_file_template(module_name) do
