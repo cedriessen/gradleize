@@ -53,6 +53,8 @@ defmodule Gradleize.Dependency.Gradle do
   def create_configuration_name(dep)
   def create_configuration_name(%Dependency{scope: nil}), do: "compile"
   def create_configuration_name(%Dependency{scope: "test"}), do: "testCompile"
-  def create_configuration_name(%Dependency{scope: "provided"}), do: "compileOnly"
+  def create_configuration_name(%Dependency{scope: "provided"}) do
+    "// originally in provided scope\ncompile"
+  end
   def create_configuration_name(%Dependency{scope: scope}), do: scope
 end
