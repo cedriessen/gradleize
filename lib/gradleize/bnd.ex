@@ -22,19 +22,21 @@ defmodule Gradleize.BND do
     |> Stream.map(fn module_dir ->
          {module_dir, read_instructions_from_module_pom(module_dir)}
        end)
-    |> Stream.map(fn {module_dir, instructions} ->
-         {module_dir, filter_instructions(instructions)}
-       end)
-    |> Stream.map(fn {module_dir, instructions} ->
-         {module_dir, rewrite_instructions(instructions)}
-       end)
-    |> Stream.map(fn {module_dir, instructions} ->
-         {module_dir, create_bnd(instructions)}
-       end)
+    |> Stream.map(thread(&filter_instructions/1))
+    |> Stream.map(thread(&rewrite_instructions/1))
+    |> Stream.map(thread(&create_bnd/1))
     |> Stream.map(fn {module_dir, bnd} ->
          write_bnd_file(module_dir, bnd)
        end)
     |> Stream.run
+  end
+
+  # little helper function to reduce clutter in the `convert_module_poms` stream mapping section
+  # creates a function that treads through the `module_dir` parameter
+  defp thread(fun) do
+    fn {module_dir, payload} ->
+      {module_dir, fun.(payload)}
+    end
   end
 
   def write_bnd_file(module_dir, content) do
