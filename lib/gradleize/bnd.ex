@@ -4,6 +4,8 @@ defmodule Gradleize.BND do
   standalone bnd files for the Gradle build.
   """
 
+  alias Gradleize.Opencast
+
   @discard_instructions [
     :"Build-Number",
     :"Bundle-SymbolicName"
@@ -14,14 +16,17 @@ defmodule Gradleize.BND do
   instructions section of the maven-bundle-plugin, transform them into a `bnd.bnd` file
   and write it to the modules root (next to the pom).
   """
-  def convert_module_poms(module_base_dir) do
-    module_base_dir
+  def convert_module_poms(modules_home \\ Opencast.modules_home()) do
+    modules_home
     |> Gradleize.Util.list_module_directories
     |> Stream.map(fn module_dir ->
          {module_dir, read_instructions_from_module_pom(module_dir)}
        end)
     |> Stream.map(fn {module_dir, instructions} ->
          {module_dir, filter_instructions(instructions)}
+       end)
+    |> Stream.map(fn {module_dir, instructions} ->
+         {module_dir, rewrite_instructions(instructions)}
        end)
     |> Stream.map(fn {module_dir, instructions} ->
          {module_dir, create_bnd(instructions)}
@@ -44,6 +49,19 @@ defmodule Gradleize.BND do
     |> Enum.filter(fn {instruction, _value} ->
          not(@discard_instructions |> Enum.member?(instruction))
        end)
+  end
+
+  def rewrite_instructions(instructions) do
+    instructions
+    |> Enum.map(&rewrite_instruction/1)
+  end
+
+  def rewrite_instruction({instruction = :"Export-Package", value}) do
+    rewritten = String.replace(value, ~r/;version=\$\{project.version\}/, "")
+    {instruction, rewritten}
+  end
+  def rewrite_instruction(instruction) do
+    instruction
   end
 
   @doc """
