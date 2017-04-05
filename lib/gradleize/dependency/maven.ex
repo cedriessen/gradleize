@@ -32,8 +32,10 @@ defmodule Gradleize.Dependency.Maven do
   @doc """
   Parse all `<dependency>` elements of a pom file.
 
-  ## Opts
+  ## Params
+  - `pom` - pom file name
 
+  ## Opts
   - `section:` - either `:management` or `:dependencies`. Defaults to `:dependencies`.
                  Use `:management` to parse the `<dependencyManagement>` section.
   """
@@ -45,10 +47,18 @@ defmodule Gradleize.Dependency.Maven do
         _ ->
           ~x"./dependencyManagement/dependencies/*"l
       end
+    pom
+    |> parse_pom
+    |> xpath(xpath)
+    |> Enum.map(&parse_dependency/1)
+  end
+
+  @doc """
+  Read a pom file and return it as XML.
+  """
+  def parse_pom(pom) do
     {:ok, xml} = File.read(pom)
     xml
     |> parse
-    |> xpath(xpath)
-    |> Enum.map(&parse_dependency/1)
   end
 end
