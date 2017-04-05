@@ -79,7 +79,6 @@ defmodule Gradleize.Dependencies do
     |> Enum.intersperse("\n")
   end
 
-
   # Create a Gradle library definition from a parsed Maven dependency.
   defp create_library_definition(dep) do
     lib_ref = create_lib_ref(artifact: dep.artifact_id)
@@ -89,8 +88,6 @@ defmodule Gradleize.Dependencies do
       |> Gradle.create_quoted_dependency_string
     [lib_ref, " = ", dependency]
   end
-
-  defp create_quoted_dependency_string
 
   # Rewrite the version field of a dependency struct.
   defp rewrite_version(dep) do
