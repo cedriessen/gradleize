@@ -17,10 +17,20 @@ defmodule Gradleize.Opencast do
 
   @doc """
   Get path to a module's `pom.xml` of the configured Opencast project.
+
+  Pass only the module name like `matterhorn-common` or an absolute path
+  like `/Users/ced/dev/mh/opencast/modules/matterhorn-common`.
   """
   def module_pom(module) do
-    modules_home()
-    |> Path.join(module)
+    module_dir =
+      case Path.type(module) do
+        :relative ->
+          modules_home()
+          |> Path.join(module)
+        :absolute ->
+          module
+      end
+    module_dir
     |> Path.join("pom.xml")
   end
 
