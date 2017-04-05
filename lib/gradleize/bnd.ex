@@ -2,19 +2,27 @@ defmodule Gradleize.BND do
   @moduledoc """
   Extract BND instructions from Maven bundle plugin (maven-bundle-plugin) and create
   standalone bnd files for the Gradle build.
+
+  Main entry point: `convert_module_poms/1`.
   """
 
   alias Gradleize.Opencast
 
   @discard_instructions [
     :"Build-Number",
-    :"Bundle-SymbolicName"
+    :"Bundle-SymbolicName",
+    :"Embed-Dependency"
   ]
 
   @doc """
   Scan all subdirectories of `module_base_dir` for `pom.xml` files. Extract the BND
   instructions section of the maven-bundle-plugin, transform them into a `bnd.bnd` file
-  and write it to the modules root (next to the pom).
+  and write it to the module's root (next to the pom).
+
+  ## Discard instructions
+
+  Next to the following instructions, empty instructions will always be discarded:
+  `#{@discard_instructions |> Enum.map(&Atom.to_string/1) |> Enum.join(", ")}.
   """
   def convert_module_poms(modules_home \\ Opencast.modules_home()) do
     modules_home
@@ -39,6 +47,8 @@ defmodule Gradleize.BND do
     end
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def write_bnd_file(module_dir, content) do
     IO.puts("Writing bnd.bnd to #{module_dir}")
     module_dir
@@ -46,12 +56,19 @@ defmodule Gradleize.BND do
     |> File.write(content)
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   def filter_instructions(instructions) do
     instructions
-    |> Enum.filter(fn {instruction, _value} ->
-         not(@discard_instructions |> Enum.member?(instruction))
-       end)
+    |> Enum.filter(&filter_instruction/1)
   end
+
+  defp filter_instruction({instruction, ""}), do: false
+  defp filter_instruction({instruction, _value}) do
+    not(@discard_instructions |> Enum.member?(instruction))
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def rewrite_instructions(instructions) do
     instructions
@@ -65,6 +82,8 @@ defmodule Gradleize.BND do
   def rewrite_instruction(instruction) do
     instruction
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   @doc """
   Take a keyword list of BDN instructions and create a BND file.
