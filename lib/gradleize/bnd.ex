@@ -63,7 +63,7 @@ defmodule Gradleize.BND do
     |> Enum.filter(&filter_instruction/1)
   end
 
-  defp filter_instruction({instruction, ""}), do: false
+  defp filter_instruction({_instruction, ""}), do: false
   defp filter_instruction({instruction, _value}) do
     not(@discard_instructions |> Enum.member?(instruction))
   end
