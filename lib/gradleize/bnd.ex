@@ -22,7 +22,7 @@ defmodule Gradleize.BND do
   ## Discard instructions
 
   Next to the following instructions, empty instructions will always be discarded:
-  `#{@discard_instructions |> Enum.map(&Atom.to_string/1) |> Enum.join(", ")}.
+  `#{@discard_instructions |> Enum.map(&Atom.to_string/1) |> Enum.join(", ")}`.
   """
   def convert_module_poms(modules_home \\ Opencast.modules_home()) do
     modules_home
