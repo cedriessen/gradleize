@@ -22,16 +22,51 @@ defmodule Gradleize.Opencast do
   like `/Users/ced/dev/mh/opencast/modules/matterhorn-common`.
   """
   def module_pom(module) do
-    module_dir =
-      case Path.type(module) do
-        :relative ->
-          modules_home()
-          |> Path.join(module)
-        :absolute ->
-          module
-      end
-    module_dir
+    module
+    |> module_home
     |> Path.join("pom.xml")
+  end
+
+  @doc """
+  Get path to a module's `bnd.bnd` of the configured Opencast project.
+
+  Pass only the module name like `matterhorn-common` or an absolute path
+  like `/Users/ced/dev/mh/opencast/modules/matterhorn-common`.
+  """
+  def module_bnd(module) do
+    module
+    |> module_home
+    |> Path.join("bnd.bnd")
+  end
+
+  @doc """
+  Get path to a module's gradle file of the configured Opencast project.
+  Gradle files are named after the module, e.g. `matterhorn-common.gradle`.
+
+  Pass only the module name like `matterhorn-common` or an absolute path
+  like `/Users/ced/dev/mh/opencast/modules/matterhorn-common`.
+  """
+  def module_gradle(module) do
+    module_home = module_home(module)
+    module_name = Path.basename(module_home)
+    module_home
+    |> Path.join("#{module_name}.gradle")
+  end
+
+  @doc """
+  Get a module's home directory.
+
+  ## Params
+  - `module` - either just the module name or an absolute path
+  """
+  def module_home(module) do
+    case Path.type(module) do
+      :relative ->
+        modules_home()
+        |> Path.join(module)
+      :absolute ->
+        module
+    end
   end
 
   @doc """

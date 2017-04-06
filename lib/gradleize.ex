@@ -36,6 +36,15 @@ defmodule Gradleize do
     IO.puts "Created #{build_file}"
   end
 
+  @doc """
+  Find all modules having embedded dependencies.
+  """
+  def find_modules_with_embedded_dependencies(modules_home \\ Opencast.modules_home()) do
+
+  end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   defp build_file_template(module_name) do
     description = create_description_for(module_name)
     dependencies =
