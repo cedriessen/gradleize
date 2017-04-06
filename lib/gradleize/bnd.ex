@@ -49,7 +49,7 @@ defmodule Gradleize.BND do
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def write_bnd_file(module_dir, content) do
+  defp write_bnd_file(module_dir, content) do
     IO.puts("Writing bnd.bnd to #{module_dir}")
     module_dir
     |> Path.join("bnd.bnd")
@@ -58,7 +58,7 @@ defmodule Gradleize.BND do
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def filter_instructions(instructions) do
+  defp filter_instructions(instructions) do
     instructions
     |> Enum.filter(&filter_instruction/1)
   end
@@ -70,23 +70,23 @@ defmodule Gradleize.BND do
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  def rewrite_instructions(instructions) do
+  defp rewrite_instructions(instructions) do
     instructions
     |> Enum.map(&rewrite_instruction/1)
   end
 
-  def rewrite_instruction({instruction = :"Export-Package", value}) do
+  defp rewrite_instruction({instruction = :"Export-Package", value}) do
     rewritten = String.replace(value, ~r/;version=\$\{project.version\}/, "")
     {instruction, rewritten}
   end
-  def rewrite_instruction(instruction) do
+  defp rewrite_instruction(instruction) do
     instruction
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   @doc """
-  Take a keyword list of BDN instructions and create a BND file.
+  Take a keyword list of BDN instructions and create a BND instruction document.
   Return an IO list.
 
   ## Example output
@@ -110,14 +110,14 @@ defmodule Gradleize.BND do
     |> Enum.map(&write_instruction/1)
   end
 
-  def write_instruction({instruction, value}) do
+  defp write_instruction({instruction, value}) do
     [
       Atom.to_string(instruction), ":",
       append_value(value), "\n"
     ]
   end
 
-  def append_value(value) do
+  defp append_value(value) do
     value
     |> String.split("\n")
     |> Enum.map(&String.trim/1)
@@ -129,7 +129,7 @@ defmodule Gradleize.BND do
        end
   end
 
-  def write_value_block(lines) do
+  defp write_value_block(lines) do
     lines
     |> Enum.map(fn line -> ["  ", line] end)
     |> Enum.intersperse("\\\n")
