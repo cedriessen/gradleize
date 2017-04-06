@@ -8,10 +8,18 @@ defmodule Gradleize.BND do
 
   alias Gradleize.Opencast
 
+  # instructions listed here will be discarded
   @discard_instructions [
     :"Build-Number",
-    :"Bundle-SymbolicName",
-    :"Embed-Dependency"
+    :"Bundle-SymbolicName"
+  ]
+
+  # instructions listed here will be commented out
+  @disable_instructions [
+    :"Embed-Dependency",
+    :"_exportcontents",
+    :"Private-Package",
+    :"Import-Package"
   ]
 
   @doc """
@@ -30,7 +38,7 @@ defmodule Gradleize.BND do
     |> Stream.map(fn module_dir ->
          {module_dir, read_instructions_from_module_pom(module_dir)}
        end)
-    |> Stream.map(thread(&filter_instructions/1))
+    |> Stream.map(thread(&discard_instructions/1))
     |> Stream.map(thread(&rewrite_instructions/1))
     |> Stream.map(thread(&create_bnd/1))
     |> Stream.map(fn {module_dir, bnd} ->
@@ -58,13 +66,13 @@ defmodule Gradleize.BND do
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  defp filter_instructions(instructions) do
+  defp discard_instructions(instructions) do
     instructions
-    |> Enum.filter(&filter_instruction/1)
+    |> Enum.filter(&discard_instruction/1)
   end
 
-  defp filter_instruction({_instruction, ""}), do: false
-  defp filter_instruction({instruction, _value}) do
+  defp discard_instruction({_instruction, ""}), do: false
+  defp discard_instruction({instruction, _value}) do
     not(@discard_instructions |> Enum.member?(instruction))
   end
 
@@ -111,29 +119,35 @@ defmodule Gradleize.BND do
   end
 
   defp write_instruction({instruction, value}) do
+    prefix = line_prefix(instruction)
     [
-      Atom.to_string(instruction), ":",
-      append_value(value), "\n"
+      prefix,
+      Atom.to_string(instruction), ?:,
+      write_value(value, prefix), ?\n
     ]
   end
 
-  defp append_value(value) do
+  # prefix - line prefix
+  defp write_value(value, prefix) do
     value
     |> String.split("\n")
     |> Enum.map(&String.trim/1)
     |> case do
          [single_line] ->
-           [" ", single_line, "\n"]
+           [" ", single_line, ?\n]
          multiple_lines ->
-           ["\\\n", write_value_block(multiple_lines), "\n"]
+           value_block =
+             multiple_lines
+             |> Enum.map(fn line -> [prefix, "  ", line] end)
+             |> Enum.intersperse("\\\n")
+           ["\\\n", value_block, ?\n]
        end
   end
 
-  defp write_value_block(lines) do
-    lines
-    |> Enum.map(fn line -> ["  ", line] end)
-    |> Enum.intersperse("\\\n")
-  end
+  defp line_prefix(instruction) when instruction in @disable_instructions, do: ?#
+  defp line_prefix(_instruction), do: ""
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   import SweetXml
 
