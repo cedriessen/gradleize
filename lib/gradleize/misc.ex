@@ -42,4 +42,26 @@ defmodule Gradleize.Misc do
     |> File.read!
     |> IO.puts
   end
+
+  @doc """
+  Uncomment a module in Opencast's feature XML. Give just the module name, e.g. `matterhorn-common`.
+  The `feature.xml` will be modified in-place.
+  """
+  def uncomment_module_in_feature_xml(module) do
+    # read and transform
+    feature_xml =
+      Opencast.feature_xml
+      |> File.read!
+      |> String.split("\n")
+      |> Stream.map(fn line ->
+           case Regex.run(~r/^\s*<!--(.*?<bundle.*?#{module}.*?)-->\s*$/, line, capture: :all_but_first) do
+             nil -> line
+             [bundle] -> bundle
+           end
+         end)
+      |> Enum.join("\n")
+    # no write back
+    Opencast.feature_xml
+    |> File.write!(feature_xml)
+  end
 end

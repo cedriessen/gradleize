@@ -15,6 +15,11 @@ defmodule Gradleize.Opencast do
     |> Path.join("pom.xml")
   end
 
+  def feature_xml do
+    @project_home
+    |> Path.join("assemblies/karaf-features/src/main/feature/feature.xml")
+  end
+
   @doc """
   Get path to a module's `pom.xml` of the configured Opencast project.
 
