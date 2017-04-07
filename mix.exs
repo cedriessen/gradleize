@@ -30,6 +30,7 @@ defmodule Gradleize.Mixfile do
   defp deps do
     [
       {:sweet_xml, "~> 0.6.1"},
+      {:combine, "~> 0.9.6"},
       {:ex_doc, "~> 0.14", only: :dev}
     ]
   end
