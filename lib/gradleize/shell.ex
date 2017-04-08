@@ -19,6 +19,11 @@ defmodule Gradleize.Shell do
 
   def coloured(text, colour) do
     [colour, text]
+    |> ansi
+  end
+
+  def ansi(io_list) do
+    io_list
     |> IO.ANSI.format(true)
     |> IO.puts
   end
