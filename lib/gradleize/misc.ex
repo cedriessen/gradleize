@@ -64,4 +64,43 @@ defmodule Gradleize.Misc do
     Opencast.feature_xml
     |> File.write!(feature_xml)
   end
+
+  @doc """
+  Successively amend modules to the Karaf feature.xml based on the module
+  hierarchy calculated by `Gradleize.ModuleDependencyHierarchy`.
+  """
+  def amend_modules_to_feature_xml do
+    # build hierarchy
+    {resolved, []} =
+      "lib/module_dependencies.txt"
+      |> File.read!
+      |> Gradleize.ModuleDependencyHierarchy.build_hierarchy
+    # read last handled module
+    last_module =
+      case File.read("_build/gradleize") do
+        {:ok, module} -> module
+        _ -> nil
+      end
+
+    resolved
+    |> Enum.drop_while(fn {module, _, _} -> last_module && last_module != module end)
+    |> Enum.each(fn {module, _, _} ->
+         File.write!("_build/gradleize", module)
+         Shell.ansi([:clear, :yellow_background, :black, module, :reset, ?\n])
+         show_bnd_and_gradle(module)
+         case read_yn do
+           :yes -> uncomment_module_in_feature_xml(module)
+           :no -> nil
+         end
+       end)
+  end
+
+  defp read_yn do
+    IO.write("Amend [yn]? ")
+    case IO.read(:line) do
+      "y\n" -> :yes
+      "n\n" -> :no
+      _ -> read_yn
+    end
+  end
 end
