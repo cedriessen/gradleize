@@ -9,6 +9,13 @@ defmodule Gradleize.ModuleDependencyHierarchy do
   @type module_name :: binary
   @type mod :: {module_name, resolved_dependencies :: [module_name], unresolved_dependencies :: [module_name]}
 
+  @doc """
+  Resolve module dependencies and build module hierarchy from `dependencies` string output
+  from Gradle. See the associated test for its format.
+
+  Return a tuple with a list of fully resolved and unresolved modules `{resolved, unresolved}`.
+  Use `show_hierarchy/1` to display the results.
+  """
   def build_hierarchy(dependencies) do
     # [{module, resolved, unresolved}]
     modules =
@@ -22,7 +29,13 @@ defmodule Gradleize.ModuleDependencyHierarchy do
          end)
 
     # start resolution
-    {resolved, unresolved} = resolve([], modules, [], length(modules))
+    resolve([], modules, [], length(modules))
+  end
+
+  @doc """
+  See `build_hierarchy/1`.
+  """
+  def show_hierarchy({resolved, unresolved}) do
     print_modules(resolved, [?\n, :green_background, :black, "FULLY RESOLVED"])
     print_modules(unresolved, [?\n, :red_background, :black, "UNRESOLVED"])
   end
@@ -36,7 +49,7 @@ defmodule Gradleize.ModuleDependencyHierarchy do
   end
 
   @spec print_module(mod) :: any
-  defp print_module({module, [], []}), do: Shell.text(module)
+  defp print_module({module, _, []}), do: Shell.text(module)
   defp print_module({module, resolved, unresolved}) do
     Shell.text [?\n, module]
     resolved
