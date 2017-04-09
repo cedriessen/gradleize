@@ -88,7 +88,7 @@ defmodule Gradleize.Misc do
          File.write!("_build/gradleize", module)
          Shell.ansi([:clear, :yellow_background, :black, module, :reset, ?\n])
          show_bnd_and_gradle(module)
-         case read_yn do
+         case read_yn() do
            :yes -> uncomment_module_in_feature_xml(module)
            :no -> nil
          end
@@ -100,7 +100,7 @@ defmodule Gradleize.Misc do
     case IO.read(:line) do
       "y\n" -> :yes
       "n\n" -> :no
-      _ -> read_yn
+      _ -> read_yn()
     end
   end
 end

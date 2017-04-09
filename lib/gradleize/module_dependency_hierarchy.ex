@@ -40,8 +40,7 @@ defmodule Gradleize.ModuleDependencyHierarchy do
     print_modules(unresolved, [?\n, :red_background, :black, "UNRESOLVED"])
   end
 
-  defp print_modules([], header) do
-  end
+  defp print_modules([], _header), do: nil
   defp print_modules(modules, header) do
     Shell.ansi header
     modules

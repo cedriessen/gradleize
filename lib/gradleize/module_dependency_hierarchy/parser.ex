@@ -24,7 +24,7 @@ defmodule Gradleize.ModuleDependencyHierarchy.Parser do
     |> ignore(token("]"))
   end
 
-  def module(previous \\ nil) do
+  def module do
     [
       ignore(token("[")),
       word_of(@word_chars),
