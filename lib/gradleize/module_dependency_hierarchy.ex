@@ -14,16 +14,23 @@ defmodule Gradleize.ModuleDependencyHierarchy do
     modules =
       dependencies
       |> Parser.parse
-      |> Enum.map(fn {module, dependencies} -> {module, [], dependencies} end)
+      |> Enum.map(fn {module, dependencies} ->
+           filtered =
+             dependencies
+             |> Enum.filter(& &1 != "android-mms")
+           {module, [], filtered}
+         end)
+
     # start resolution
     {resolved, unresolved} = resolve([], modules, [], length(modules))
-    Shell.ansi [?\n, :green_background, :black, "FULLY RESOLVED"]
-    print_modules(resolved)
-    Shell.ansi [?\n, :red_background, :black, "UNRESOLVED"]
-    print_modules(unresolved)
+    print_modules(resolved, [?\n, :green_background, :black, "FULLY RESOLVED"])
+    print_modules(unresolved, [?\n, :red_background, :black, "UNRESOLVED"])
   end
 
-  defp print_modules(modules) do
+  defp print_modules([], header) do
+  end
+  defp print_modules(modules, header) do
+    Shell.ansi header
     modules
     |> Enum.each(&print_module/1)
   end
@@ -57,9 +64,6 @@ defmodule Gradleize.ModuleDependencyHierarchy do
   """
   @spec resolve([mod], [mod], [mod], integer) :: {[mod], [mod]}
   def resolve(resolved, unresolved, again, count)
-  def resolve(mrs, [], [], _) do
-    {mrs |> Enum.reverse, []}
-  end
   # match module in unresolved with no more unresolved dependencies
   def resolve(mrs, [{_, _, []} = mu | mus], mas, c) do
     resolve([mu | mrs], mus, mas, c)
@@ -81,8 +85,11 @@ defmodule Gradleize.ModuleDependencyHierarchy do
   def resolve(mrs, [], mas, c) when length(mas) < c do
     resolve(mrs, mas, [], length(mas))
   end
-  # end of iteration, with still some modules to try again but the last iteration did
-  # not reduce the amount of unresolved modules so we have some unresolvable ones :(
+  # End of iteration/resolution process.
+  # Either resolution has been fully done
+  # _or_
+  # some dependencies cannot be resolved. This is because the amount of unresolved modules
+  # has not been reduced since the last iteration. See function head above.
   def resolve(mrs, [], mas, _) do
     {mrs |> Enum.reverse, mas}
   end
