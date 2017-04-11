@@ -30,17 +30,23 @@ defmodule Gradleize.Misc do
                or a path to a module.
   """
   def show_bnd_and_gradle(module) do
-    Shell.info "GRADLE"
+    Shell.info "GRADLE BUILDFILE"
     module
     |> Opencast.module_gradle
     |> File.read!
     |> IO.puts
 
-    Shell.info "\nBND"
+    Shell.info "\nBND DEFINITION"
     module
     |> Opencast.module_bnd
     |> File.read!
     |> IO.puts
+  end
+
+  def show_calculated_bnd(module) do
+    Shell.info "CALCULATED BND"
+    {out, _} = System.cmd("bash", ["bndp.sh", module], cd: System.cwd())
+    Shell.text out
   end
 
   @doc """
@@ -78,16 +84,22 @@ defmodule Gradleize.Misc do
     # read last handled module
     last_module =
       case File.read("_build/gradleize") do
-        {:ok, module} -> module
+        {:ok, module} ->
+          module
+          |> String.split("\s*\n\s*")
+          |> hd
         _ -> nil
       end
 
+    resolved_total = length(resolved)
     resolved
-    |> Enum.drop_while(fn {module, _, _} -> last_module && last_module != module end)
-    |> Enum.each(fn {module, _, _} ->
+    |> Enum.with_index(1)
+    |> Enum.drop_while(fn {{module, _, _}, idx} -> last_module && last_module != module end)
+    |> Enum.each(fn {{module, _, _}, idx} ->
          File.write!("_build/gradleize", module)
-         Shell.ansi([:clear, :yellow_background, :black, module, :reset, ?\n])
+         Shell.ansi([:clear, :yellow_background, :black, module, ?\s, Integer.to_string(idx), "/", Integer.to_string(resolved_total), :reset, ?\n])
          show_bnd_and_gradle(module)
+         show_calculated_bnd(module)
          case read_yn() do
            :yes -> uncomment_module_in_feature_xml(module)
            :no -> nil
