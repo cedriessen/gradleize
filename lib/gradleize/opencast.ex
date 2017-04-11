@@ -5,18 +5,16 @@ defmodule Gradleize.Opencast do
   Set path the Opencast home directory in `config.exs`.
   """
 
-  @project_home Application.get_env(:gradleize, :project_home)
-
   @doc """
   Get path of the main `pom.xml` of the configured Opencast project.
   """
   def main_pom do
-    @project_home
+    project_home()
     |> Path.join("pom.xml")
   end
 
   def feature_xml do
-    @project_home
+    project_home()
     |> Path.join("assemblies/karaf-features/src/main/feature/feature.xml")
   end
 
@@ -78,14 +76,29 @@ defmodule Gradleize.Opencast do
   Get Opencast's home directory as configured in the config.
   """
   def project_home do
-    @project_home
+    Application.get_env(:gradleize, :project_home)
   end
 
   @doc """
   Home of all module directories of the configured Opencast project.
   """
-  def modules_home do
-    @project_home
+  def modules_home(project_home \\ project_home()) do
+    project_home
     |> Path.join("modules")
+  end
+
+  @doc """
+  Return a list of the home directories of all Opencast modules.
+  A module is detected by the presence of a `pom.xml`.
+
+  Returns absolute paths.
+  """
+  def module_homes(project_home \\ project_home()) do
+    project_home
+    |> modules_home
+    |> Gradleize.Util.list_sub_directories
+    |> Enum.filter(fn module_home ->
+         module_home |> module_pom |> File.regular?
+       end)
   end
 end
