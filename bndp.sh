@@ -3,12 +3,12 @@
 # BND print
 
 echo "GRADLE"
-gradle=$(bnd print --impexp /Users/ced/dev/mh/opencast/modules/$1/build/libs/$1-2.2-SNAPSHOT.jar)
+gradle=$(bnd print --impexp /Users/ced/dev/mh/opencast.gradle/modules/$1/build/libs/$1-2.2-SNAPSHOT.jar)
 echo "$gradle"
 
 echo
 echo "MAVEN"
-maven=$(bnd print --impexp /Users/ced/dev/mh/opencast/tmp/$1-2.2-SNAPSHOT.jar)
+maven=$(bnd print --impexp /Users/ced/dev/mh/opencast.gradle/tmp/$1-2.2-SNAPSHOT.jar)
 echo "$maven"
 
 echo

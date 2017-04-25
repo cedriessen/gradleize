@@ -1,4 +1,4 @@
-defmodule ModuleDependencyHierarchyTest do
+defmodule Gradleize.ModuleDependencyHierarchyTest do
   use ExUnit.Case
 
   alias Gradleize.ModuleDependencyHierarchy, as: Hierarchy

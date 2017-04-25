@@ -86,20 +86,21 @@ defmodule Gradleize.Misc do
       case File.read("_build/gradleize") do
         {:ok, module} ->
           module
-          |> String.split("\s*\n\s*")
+          |> String.split("\n")
           |> hd
+          |> String.trim
         _ -> nil
       end
 
     resolved_total = length(resolved)
     resolved
     |> Enum.with_index(1)
-    |> Enum.drop_while(fn {{module, _, _}, idx} -> last_module && last_module != module end)
+    |> Enum.drop_while(fn {{module, _, _}, _idx} -> last_module && last_module != module end)
     |> Enum.each(fn {{module, _, _}, idx} ->
          File.write!("_build/gradleize", module)
          Shell.ansi([:clear, :yellow_background, :black, module, ?\s, Integer.to_string(idx), "/", Integer.to_string(resolved_total), :reset, ?\n])
-         show_bnd_and_gradle(module)
          show_calculated_bnd(module)
+         show_bnd_and_gradle(module)
          case read_yn() do
            :yes -> uncomment_module_in_feature_xml(module)
            :no -> nil
