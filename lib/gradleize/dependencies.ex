@@ -10,8 +10,17 @@ defmodule Gradleize.Dependencies do
   @doc """
   Create a list of library definitions from the `<dependencyManagement>` section of a Maven pom.
 
-  Params
-  - `pom` - pom file path
+  ## Params
+  - `pom` - path to `pom.xml`
+
+  ## Return
+  A set of libary definitions like this
+  ```
+  libraries.activation = 'javax.activation:activation:1.1.1'
+  libraries.activemq_all = 'org.apache.activemq:activemq-all:5.3.1'
+  libraries.aws_java_sdk_osgi = "com.amazonaws:aws-java-sdk-osgi:${versions.aws}"
+  libraries.c3p0 = 'com.mchange:c3p0:0.9.5.2'
+  ```
   """
   def create_library_definitions(pom) do
     pom
@@ -19,16 +28,32 @@ defmodule Gradleize.Dependencies do
     |> Stream.map(&create_library_definition/1)
     |> Enum.sort
     |> Enum.intersperse("\n")
-    |> IO.puts
   end
 
   @doc """
-  Create Gradle dependency definitions from a modules's pom.
+  Create Gradle dependency declarations from a modules's pom.
 
-  Params
-  - `pom` - pom file path
+  Managed dependencies -- those that do not have a version -- are added referring to a
+  defined library. See `create_library_definitions/1`.
 
-  Return an IO list.
+  ## Params
+  - `pom` - path to `pom.xml`
+
+  ## Return
+  Dependency declarations like this
+  ```
+  compile 'org.freemarker:freemarker:2.3.15'
+  compile 'org.hamcrest:hamcrest-core:1.3'
+  compile 'org.hamcrest:hamcrest-library:1.3'
+  compile 'pl.pragmatists:JUnitParams:1.0.4'
+  compile libraries.c3p0
+  compile libraries.com_springsource_org_apache_commons_beanutils
+  compile libraries.commons_codec
+  compile libraries.commons_collections
+  testCompile 'org.apache.servicemix.specs:org.apache.servicemix.specs.jaxp-api-1.4:2.4.0'
+  testCompile 'xmlunit:xmlunit:1.5'
+  testCompile libraries.easymock
+  ```
   """
   @spec create_module_dependencies(binary) :: iolist
   def create_module_dependencies(pom) do
