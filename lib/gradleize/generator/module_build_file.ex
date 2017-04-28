@@ -1,4 +1,4 @@
-defmodule Gradleize.ModuleBuildFile do
+defmodule Gradleize.Generator.ModuleBuildFile do
   @moduledoc """
   Generator functions for Gradle module build files.
   """
@@ -8,28 +8,28 @@ defmodule Gradleize.ModuleBuildFile do
   alias Gradleize.Util
 
   @doc """
-  Create a `.gradle` build file in each module directory.
+  Generate a `.gradle` build file in each module directory.
 
   The file is named after the module, e.g. `matterhorn-common.gradle`.
 
   ## Param
   - `module_home` - home directory of all project module directories
   """
-  def create_module_build_files(modules_home) do
+  def generate_all(modules_home) do
     modules_home
     |> Util.list_module_directories
-    |> Enum.each(&create_module_build_file/1)
+    |> Enum.each(&generate/1)
   end
 
   @doc """
-  Create a `.gradle` build file in the given module directory.
+  Generate a `.gradle` build file in the given module directory.
 
   The file is named after the module, e.g. `matterhorn-common.gradle`.
 
   ## Param
   - `module_dir` - path to the module directory
   """
-  def create_module_build_file(module_dir) do
+  def generate(module_dir) do
     module_name = Path.basename(module_dir)
     build_file = "#{module_name}.gradle"
     module_dir
