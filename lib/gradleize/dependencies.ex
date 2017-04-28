@@ -115,9 +115,20 @@ defmodule Gradleize.Dependencies do
     [lib_ref, " = ", dependency]
   end
 
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   # Rewrite the version field of a dependency struct.
   defp rewrite_version(dep) do
     %{dep | version: rewrite_version_var(dep.version)}
+  end
+
+  def rewrite_version_property(version) do
+    case Regex.run(~r/(.*?).version/, version, capture: :all_but_first) do
+      [version] ->
+        "versions.#{underscore(version)}"
+      nil ->
+        version
+    end
   end
 
   # Rewrite a Maven version variable ${xyz.version} to Gradle ${versions.xyz}
@@ -131,6 +142,8 @@ defmodule Gradleize.Dependencies do
         version
     end
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   # Create a Gradle library reference for a lib.
   defp create_lib_ref(lib: lib_name), do: ["libraries.", lib_name]
@@ -152,6 +165,8 @@ defmodule Gradleize.Dependencies do
   defp create_lib_name(prefix, suffix) do
     "#{prefix}_#{underscore(suffix)}"
   end
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   # turn a set of characters into underscores
   defp underscore(word), do: word |> String.replace(~r/[.-]/, "_")
