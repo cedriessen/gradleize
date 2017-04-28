@@ -5,17 +5,22 @@ defmodule Gradleize.Opencast do
   Set path the Opencast home directory in `config.exs`.
   """
 
-  @doc """
-  Get path of the main `pom.xml` of the configured Opencast project.
-  """
+  @doc "Get path of the main `pom.xml` of the configured Opencast project."
   def main_pom do
     project_home()
     |> Path.join("pom.xml")
   end
 
+  @doc "Get path of Karaf `feature.xml`"
   def feature_xml do
     project_home()
     |> Path.join("assemblies/karaf-features/src/main/feature/feature.xml")
+  end
+
+  @doc "Get path of `dependencies.gradle` file."
+  def dependencies_gradle do
+    project_home()
+    |> Path.join("gradle/dependencies.gradle")
   end
 
   @doc """
