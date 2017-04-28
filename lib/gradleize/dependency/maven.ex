@@ -52,6 +52,17 @@ defmodule Gradleize.Dependency.Maven do
   end
 
   @doc """
+  Return a list of tuples `{property_name, value}`.
+  """
+  @spec parse_properties(binary) :: [{binary, binary}]
+  def parse_properties(pom) do
+    pom
+    |> parse_pom
+    |> xpath(~x"./properties/*"l)
+    |> Enum.map(fn p -> {xpath(p, ~x"name()"s), xpath(p, ~x"text()"s)} end)
+  end
+
+  @doc """
   Read a pom file and return it as XML.
   """
   def parse_pom(pom) do
