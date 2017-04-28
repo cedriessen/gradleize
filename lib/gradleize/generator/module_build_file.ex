@@ -34,13 +34,13 @@ defmodule Gradleize.Generator.ModuleBuildFile do
     build_file = "#{module_name}.gradle"
     module_dir
     |> Path.join(build_file)
-    |> File.write!(build_file_template(module_name))
+    |> File.write!(create_build_file_template(module_name))
     IO.puts "Created #{build_file}"
   end
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  defp build_file_template(module_name) do
+  defp create_build_file_template(module_name) do
     description = create_description_for(module_name)
     dependencies =
       module_name
