@@ -22,6 +22,7 @@ defmodule Gradleize.Dependencies do
   libraries.c3p0 = 'com.mchange:c3p0:0.9.5.2'
   ```
   """
+  @spec create_library_definitions(binary) :: iolist
   def create_library_definitions(pom) do
     pom
     |> Maven.parse_dependencies(section: :management)
