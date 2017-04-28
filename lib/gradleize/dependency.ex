@@ -24,7 +24,7 @@ defmodule Gradleize.Dependency do
   end
 
   def artifact_id(dependency, artifact_id) do
-    %{dependency | artifcat_id: empty_to_nil(artifact_id)}
+    %{dependency | artifact_id: empty_to_nil(artifact_id)}
   end
 
   def version(dependency, version) do
