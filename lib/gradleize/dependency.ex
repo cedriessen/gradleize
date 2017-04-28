@@ -3,9 +3,8 @@ defmodule Gradleize.Dependency do
   Generic Java library dependency as defined by Maven and adopted by other build systems like Gradle.
   """
 
-  import Gradleize.Util
+  import Gradleize.Util, only: [empty_to_nil: 1]
 
-  @enforce_keys [:group_id, :artifact_id]
   defstruct group_id: nil, artifact_id: nil, version: nil, scope: nil, exclusions: []
 
   @type t :: %__MODULE__{
@@ -16,13 +15,27 @@ defmodule Gradleize.Dependency do
     exclusions: list
   }
 
-  @doc """
-  Take a dependency struct and set all of its fields that have an empty string value to `nil`.
-  """
-  def fix_empty(dependency) do
-    %{dependency |
-      version: empty_to_nil(dependency.version),
-      scope: empty_to_nil(dependency.scope)
-    }
+  def new do
+    %__MODULE__{}
+  end
+
+  def group_id(dependency, group_id) do
+    %{dependency | group_id: empty_to_nil(group_id)}
+  end
+
+  def artifact_id(dependency, artifact_id) do
+    %{dependency | artifcat_id: empty_to_nil(artifact_id)}
+  end
+
+  def version(dependency, version) do
+    %{dependency | version: empty_to_nil(version)}
+  end
+
+  def scope(dependency, scope) do
+    %{dependency | scope: empty_to_nil(scope)}
+  end
+
+  def exclusions(dependency, exclusions) do
+    %{dependency | exclusions: exclusions}
   end
 end

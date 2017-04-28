@@ -15,18 +15,16 @@ defmodule Gradleize.Dependency.Maven do
       |> xpath(~x"./exclusions/exclusion"l)
       |> Enum.map(fn exclusion ->
            {
-             exclusion |> xpath(~x"./groupId/text()"s),
-             exclusion |> xpath(~x"./artifactId/text()"s)
+             xpath(exclusion, ~x"./groupId/text()"s),
+             xpath(exclusion, ~x"./artifactId/text()"s)
            }
          end)
-    %Dependency{
-      group_id: xml |> xpath(~x"./groupId/text()"s),
-      artifact_id: xml |> xpath(~x"./artifactId/text()"s),
-      version: xml |> xpath(~x"./version/text()"s),
-      scope: xml |> xpath(~x"./scope/text()"s),
-      exclusions: exclusions
-    }
-    |> Dependency.fix_empty
+    Dependency.new
+    |> Dependency.group_id(xpath(xml, ~x"./groupId/text()"s))
+    |> Dependency.artifact_id(xpath(xml, ~x"./artifactId/text()"s))
+    |> Dependency.version(xpath(xml, ~x"./version/text()"s))
+    |> Dependency.scope(xpath(xml, ~x"./scope/text()"s))
+    |> Dependency.exclusions(exclusions)
   end
 
   @doc """
