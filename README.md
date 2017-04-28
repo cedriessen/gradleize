@@ -4,13 +4,10 @@ Little helpers to migrate Opencast from a Maven based build to Gradle.
 
 ## Tasks
 
-Create `.gradle` build file scaffolds for all modules
+Create `.gradle` build file scaffolds for all modules and the corresponding
+`gradle/dependencies.gradle` file:
 
-    $ mix run -e "Gradleize.create_module_build_files"
+    $ mix run -e 'Gradleize.generate_module_build_files()'
 
 Make sure to configure the Opencast home directory in `config.exs`.
-
-Create `.gradle` build file scaffold for a single module
-
-    $ mix run -e 'Gradleize.create_module_build_file("/path/to/module")'
 
