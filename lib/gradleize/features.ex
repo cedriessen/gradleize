@@ -17,13 +17,10 @@ defmodule Gradleize.Features do
   end
 
 
-  @doc """
-  Return a list of top level feature names.
-
+  # Return a list of top level feature names.
   # Params
-  - `features` - parsed `feature.xml`
-  """
-  def top_level_features(features) do
+  # `features` - parsed `feature.xml`
+  defp top_level_features(features) do
     # calc set of all features someone depends on
     dependencies =
       features
